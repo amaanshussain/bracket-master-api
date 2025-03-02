@@ -18,7 +18,8 @@ exports.up = function (db, callback) {
   db.createTable('user', {
     uid: { type: 'string', primaryKey: true },
     name: { type: 'string' },
-    email: { type: 'string' },
+    username: { type: 'string', unique: true },
+    email: { type: 'string', unique: true },
     hpass: { type: 'string' },
     created_at: { type: 'datetime' },
     updated_at: { type: 'datetime' }
