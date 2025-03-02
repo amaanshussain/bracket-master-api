@@ -23,7 +23,6 @@ function generate_token(uid) {
 
 async function get_user_from_token(token) {
     const auth = await querydb('SELECT * FROM token WHERE token = ?', [token]);
-    console.log(auth)
     if (auth.length == 0) {
         return null;
     }

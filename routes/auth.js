@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const User = require('../classes/user');
 const { querydb } = require('../js/database');
-const { hash_pass, generate_token } = require('../js/utils');
+const { hash_pass, generate_token, get_user_from_token } = require('../js/utils');
 
 router.post('/signup', async (req, res) => {
 
@@ -38,6 +38,20 @@ router.post('/signup', async (req, res) => {
 
 router.post('/signin', async (req, res) => {
 
+    // check if user is already signed in
+    if (req.cookies.token) {
+        const user = await get_user_from_token(req.cookies.token);
+        if (!user) {
+            res.cookie('token', '', { expires: new Date(0) });
+            res.status(401).send({ response: "Token is not valid." });
+            return;
+        }
+    
+        req.user = user;
+        res.send({ response: "User signed in", user: user });
+        return;
+    }
+
     const { email, password } = req.body;
 
     // check if user exists
@@ -59,8 +73,18 @@ router.post('/signin', async (req, res) => {
     await querydb('INSERT INTO token SET ?', token);
     res.cookie('token', token.token, { expires: token.expires_at });
 
-    res.send({ response: "User signed in" });
+    delete user.hpass;
+    res.send({ response: "User signed in", user: user });
 });
 
+router.post('/signout', async (req, res) => {
+    if (req.cookies.token) {
+        await querydb('DELETE FROM token WHERE token = ?', req.cookies.token);
+        res.cookie('token', '', { expires: new Date(0) });
+        res.send({ response: "User signed out" });
+    } else {
+        res.status(401).send({ response: "User not signed in." });
+    }
+});
 
 module.exports = router;
