@@ -1,16 +1,11 @@
 const router = require('express').Router();
-const { v4: uuidv4 } = require('uuid');
+const mw_verify_token = require('../middleware/verify_token');
 
-router.post('/new', (req, res) => {
+router.get('/', [mw_verify_token], async (req, res) => {
 
-    const uid = uuidv4();
+    const user = req.user;
 
-    const user = {
-        uid: uid,
-        name: 'John Doe'
-    }
-
-    res.send({ response: "User created", user: user });
+    res.send({ response: "Retrieved profile.", user: user });
 });
 
 module.exports = router;
