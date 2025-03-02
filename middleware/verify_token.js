@@ -5,6 +5,12 @@ const mw_verify_token = async (req, res, next) => {
     req.user = null;
 
     const token = req.cookies.token;
+
+    if (!token && req.path.endsWith('/signin')) {
+        next();
+        return;
+    }
+
     if (!token) {
         res.status(401).send({ response: "No authorization token found." });
         return;

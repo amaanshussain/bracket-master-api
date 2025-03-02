@@ -4,6 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const User = require('../classes/user');
 const { querydb } = require('../js/database');
 const { hash_pass, generate_token, get_user_from_token } = require('../js/utils');
+const mw_verify_token = require('../middleware/verify_token');
 
 router.post('/signup', async (req, res) => {
 
@@ -36,19 +37,10 @@ router.post('/signup', async (req, res) => {
     res.send({ response: "User created", user: newuser });
 });
 
-router.post('/signin', async (req, res) => {
+router.post('/signin', [mw_verify_token], async (req, res) => {
 
-    // check if user is already signed in
-    if (req.cookies.token) {
-        const user = await get_user_from_token(req.cookies.token);
-        if (!user) {
-            res.cookie('token', '', { expires: new Date(0) });
-            res.status(401).send({ response: "Token is not valid." });
-            return;
-        }
-    
-        req.user = user;
-        res.send({ response: "User signed in", user: user });
+    if (req.user) {
+        res.send({ response: "User signed in", user: req.user });
         return;
     }
 
