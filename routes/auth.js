@@ -39,12 +39,12 @@ router.post('/signup', async (req, res) => {
 
 router.post('/signin', [mw_verify_token], async (req, res) => {
 
-    if (req.user) {
+    const { email, password } = req.body;
+
+    if (req.user && req.user.email == email) {
         res.send({ response: "User signed in", user: req.user });
         return;
     }
-
-    const { email, password } = req.body;
 
     // check if user exists
     const user = new User(email);
