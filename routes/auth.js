@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const User = require('../classes/user');
 const { querydb } = require('../js/database');
-const { hash_pass, generate_token, get_user_from_token } = require('../js/utils');
+const { hash_pass, generate_token } = require('../js/utils');
 const mw_verify_token = require('../middleware/verify_token');
 
 router.post('/signup', async (req, res) => {
@@ -30,6 +30,7 @@ router.post('/signup', async (req, res) => {
     await querydb('INSERT INTO user SET ?', newuser);
     delete newuser.hpass;
 
+    // create token
     const token = generate_token(uid);
     await querydb('INSERT INTO token SET ?', token);
     res.cookie('token', token.token, { expires: token.expires_at });
@@ -41,6 +42,7 @@ router.post('/signin', [mw_verify_token], async (req, res) => {
 
     const { email, password } = req.body;
 
+    // check if user is already signed in
     if (req.user && req.user.email == email) {
         res.send({ response: "User signed in", user: req.user });
         return;
@@ -61,6 +63,7 @@ router.post('/signin', [mw_verify_token], async (req, res) => {
         return;
     }
 
+    // create token
     const token = generate_token(user.uid);
     await querydb('INSERT INTO token SET ?', token);
     res.cookie('token', token.token, { expires: token.expires_at });
