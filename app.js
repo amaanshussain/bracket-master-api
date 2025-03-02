@@ -3,6 +3,9 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
+const dotenv = require('dotenv');
+dotenv.config();
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -15,6 +18,6 @@ app.use('/api/teams', require('./routes/teams'));
 
 app.use('/api/brackets', require('./routes/brackets'));
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
 });
