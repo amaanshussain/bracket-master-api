@@ -8,7 +8,7 @@ const mw_verify_token = require('../middleware/verify_token');
 
 router.post('/signup', async (req, res) => {
 
-    const { name, email, password } = req.body;
+    const { name, username, email, password } = req.body;
     
     // check if user exists
     const user = new User(email);
@@ -24,6 +24,7 @@ router.post('/signup', async (req, res) => {
     const newuser = {
         uid: uid,
         name: name,
+        username: username,
         email: email,
         hpass: hpass
     }
